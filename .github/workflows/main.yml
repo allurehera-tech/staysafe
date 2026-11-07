@@ -12,13 +12,21 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      - name: Unpack project
+        run: |
+          base64 -d staysafe_src_b64.txt > src.zip
+          mkdir proj
+          unzip -q src.zip -d proj
+          ls proj proj/app
       - name: Accept Android licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.9
-      - run: gradle assembleDebug --no-daemon
+      - name: Build
+        working-directory: proj
+        run: gradle assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: StaySafe-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: proj/app/build/outputs/apk/debug/app-debug.apk
